@@ -1,8 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './Home.module.scss';
+import { getServerCookie } from '@/utils/cookies.helper';
 
-export default function Home() {
+export default async function Home() {
+  const authToken = await getServerCookie('ttn_token');
+  const url = authToken ? '/members' : 'signin';
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary">
       <div className="w-[35rem] rounded-2xl bg-white shadow-2xl p-10 flex flex-col items-center">
@@ -15,13 +18,10 @@ export default function Home() {
             className="mb-4"
           />
           <h1 className="text-2xl font-semibold text-gray-800 mb-2">
-            Welcome to Learning Portal!
+            Welcome to admin Portal!
           </h1>
         </div>
-        <Link
-          href={`/members`}
-          className={styles.link}
-        >
+        <Link href={url} className={styles.link}>
           <button
             type="button"
             className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg shadow px-7 py-3 font-semibold text-base transition mt-8"
@@ -34,7 +34,7 @@ export default function Home() {
               src="/images/google.ef8c5c58996f6a28f453.png"
               className=""
             />
-            LOGIN WITH GOOGLE
+            { authToken ? 'You are logged in!' : 'LOGIN WITH GOOGLE' }
           </button>
         </Link>
       </div>
