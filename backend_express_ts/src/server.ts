@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import app from "./app";
-import debugLib from "debug";
-import http from "http";
-import dotenv from "dotenv";
+import app from './app';
+import debugLib from 'debug';
+import http from 'http';
+import dotenv from 'dotenv';
 
-const debug = debugLib("boot-demo-express-ts:server");
+const debug = debugLib('boot-demo-express-ts:server');
 
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
@@ -16,8 +16,8 @@ dotenv.config();
 /**
  * Get port from environment and store in Express.
  */
-const port = normalizePort(process.env.PORT || "3000");
-app.set("port", port);
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
 
 /**
  * Create HTTP server.
@@ -31,8 +31,8 @@ server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
 
-server.on("error", onError);
-server.on("listening", onListening);
+server.on('error', onError);
+server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -57,19 +57,19 @@ function normalizePort(val: string): number | string | false {
  * Event listener for HTTP server "error" event.
  */
 function onError(error: NodeJS.ErrnoException): void {
-  if (error.syscall !== "listen") {
+  if (error.syscall !== 'listen') {
     throw error;
   }
 
-  const bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // Handle specific listen errors with friendly messages
   switch (error.code) {
-    case "EACCES":
+    case 'EACCES':
       console.error(`${bind} requires elevated privileges`);
       process.exit(1);
       break;
-    case "EADDRINUSE":
+    case 'EADDRINUSE':
       console.error(`${bind} is already in use`);
       process.exit(1);
       break;
@@ -83,6 +83,6 @@ function onError(error: NodeJS.ErrnoException): void {
  */
 function onListening(): void {
   const addr = server.address();
-  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
+  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr?.port}`;
   debug(`Listening on ${bind}`);
 }

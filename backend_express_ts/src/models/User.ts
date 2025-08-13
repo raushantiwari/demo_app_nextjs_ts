@@ -68,11 +68,7 @@ class User {
   }
 
   // Create session
-  static async createUserSession(
-    user_id: number,
-    token: string,
-    hostname: string,
-  ) {
+  static async createUserSession(user_id: number, token: string, hostname: string) {
     const query = `
       INSERT INTO sessions (user_id, token, hostname)
       VALUES ($1, $2, $3) RETURNING *;

@@ -9,10 +9,7 @@ dotenv.config();
 const router = Router();
 
 // Google Login Route
-router.get(
-  '/',
-  passport.authenticate('google', { scope: ['profile', 'email'] }),
-);
+router.get('/', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Google OAuth callback route
 router.get(
@@ -28,19 +25,18 @@ router.get(
     try {
       const token = jwt.sign(
         { id: user.id, email: user.email, name: user.name },
-        process.env.JWT_SECRET || 'default_jwt_secret',
+        process.env.JWT_SECRET as string,
         { expiresIn: '1h' },
       );
 
-      await pool.query(
-        'INSERT INTO sessions (user_id, token, hostname) VALUES ($1, $2, $3)',
-        [user.id, token, req.ip],
-      );
+      await pool.query('INSERT INTO sessions (user_id, token, hostname) VALUES ($1, $2, $3)', [
+        user.id,
+        token,
+        req.ip,
+      ]);
 
       // Redirect back to React app with token as query parameter
-      res.redirect(
-        `${process.env.FE_BASE_URL}/api/auth/success?token=${token}`,
-      );
+      res.redirect(`${process.env.FE_BASE_URL}/api/auth/success?token=${token}`);
     } catch (error) {
       console.error('Error generating token or saving session:', error);
       res.status(500).json({ error: 'Internal server error' });

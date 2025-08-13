@@ -20,9 +20,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id: number, done) => {
   try {
-    const res = await pool.query<User>('SELECT * FROM users WHERE id = $1', [
-      id,
-    ]);
+    const res = await pool.query<User>('SELECT * FROM users WHERE id = $1', [id]);
     if (res.rows.length === 0) {
       return done(new Error('User not found'), null);
     }
@@ -48,10 +46,7 @@ passport.use(
         const name = profile.displayName;
         const avatar = profile?.photos?.[0]?.value ?? '';
 
-        const res = await pool.query<User>(
-          'SELECT * FROM users WHERE google_id = $1',
-          [googleId],
-        );
+        const res = await pool.query<User>('SELECT * FROM users WHERE google_id = $1', [googleId]);
 
         let user: User;
 
@@ -60,16 +55,7 @@ passport.use(
         } else {
           const insertRes = await pool.query<User>(
             'INSERT INTO users (google_id, mail, password, name, first_name, last_name, avatar, status) VALUES ($1, $2, $3, $4, $5 , $6, $7, $8) RETURNING *',
-            [
-              googleId,
-              email,
-              'dummy_ttn_$$$@!@',
-              name,
-              first_name,
-              last_name,
-              avatar,
-              true,
-            ],
+            [googleId, email, 'dummy_ttn_$$$@!@', name, first_name, last_name, avatar, true],
           );
 
           user = insertRes.rows[0];
