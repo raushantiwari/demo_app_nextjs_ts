@@ -16,6 +16,10 @@ setupSwagger(app);
 // Constants
 const apiPrefix = BACKEND_CONFIG.GLOBAL.API_PREFIX;
 
+// Enable trust proxy if your app is behind a reverse proxy (like Nginx)
+// This allows req.ip to hold the real client IP forwarded by the proxy
+app.set('trust proxy', true);
+
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '../public')));
 

@@ -32,13 +32,15 @@ router.get(
         { expiresIn: '1h' },
       );
 
-      await pool.query('INSERT INTO sessions(user_id, token) VALUES ($1, $2)', [
-        user.id,
-        token,
-      ]);
+      await pool.query(
+        'INSERT INTO sessions (user_id, token, hostname) VALUES ($1, $2, $3)',
+        [user.id, token, req.ip],
+      );
 
       // Redirect back to React app with token as query parameter
-      res.redirect(`${process.env.FE_BASE_URL}/auth/success?token=${token}`);
+      res.redirect(
+        `${process.env.FE_BASE_URL}/api/auth/success?token=${token}`,
+      );
     } catch (error) {
       console.error('Error generating token or saving session:', error);
       res.status(500).json({ error: 'Internal server error' });
