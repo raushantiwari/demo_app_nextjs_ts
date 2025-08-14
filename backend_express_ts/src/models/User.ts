@@ -102,7 +102,7 @@ class User {
   // Update user login time
   static async updateLoginTime(mail: string) {
     const query = `
-      UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE mail = $1 RETURNING *;
+      UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE email = $1 RETURNING *;
     `;
     try {
       const result = await pool.query(query, [mail]);
@@ -114,7 +114,7 @@ class User {
   }
   // Get user by ID, google_id or email
   static async checkUserExists(id: string) {
-    const query = `SELECT mail FROM users WHERE email = $1 OR google_id = $1 OR user_id = $1 AND status = $2;`;
+    const query = `SELECT email FROM users WHERE email = $1 OR google_id = $1 AND status = $2;`;
 
     // Option 1: Debug (only in dev)
     if (process.env.NODE_ENV !== 'production') {
@@ -126,8 +126,8 @@ class User {
 
     // Option 2:
     // Show PostgreSQL's execution plan
-    const plan = await pool.query('EXPLAIN ' + query, [id, true]);
-    console.log(plan.rows, 'debug Option2 @@@@@@@@@@@@@@@@@@@@@@@');
+    // const plan = await pool.query('EXPLAIN ' + query, [id, true]);
+    // console.log(plan.rows, 'debug Option2 @@@@@@@@@@@@@@@@@@@@@@@');
 
     try {
       const result = await pool.query(query, [id, true]);

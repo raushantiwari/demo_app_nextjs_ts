@@ -4,25 +4,19 @@ import pool from '../utils/db'; // Adjust the import path as necessary
 import dotenv from 'dotenv';
 
 import User from '../models/User';
+import Profile from '../models/Profile';
+import { UserProp } from '../types/users.type';
 
 dotenv.config();
 
-interface UserProp {
-  id: number;
-  google_id: string;
-  mail: string;
-  name: string;
-  avatar: string;
-}
-
 passport.serializeUser((user, done) => {
   const customUser = user as UserProp;
-  done(null, customUser.mail);
+  done(null, customUser.email);
 });
 
 passport.deserializeUser(async (mail: string, done) => {
   try {
-    const res = await pool.query<UserProp>('SELECT * FROM users WHERE mail = $1', [mail]);
+    const res = await pool.query<UserProp>('SELECT * FROM users WHERE email = $1', [mail]);
     if (res.rows.length === 0) {
       return done(new Error('User not found'), null);
     }
@@ -41,31 +35,40 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const googleId = profile.id;
+        const googleId = profile.id as string;
         const mail = profile.emails?.[0]?.value ?? '';
         const first_name = profile?.name?.givenName ?? '';
         const last_name = profile?.name?.familyName ?? '';
         const name = profile.displayName;
         const avatar = profile?.photos?.[0]?.value ?? '';
 
-        const res = await pool.query<UserProp>(
-          'SELECT mail, first_name, last_name, avatar  FROM users WHERE google_id = $1',
-          [googleId],
-        );
+        // check user exist or not.
+        let user: UserProp = await User.checkUserExists(googleId);
 
-        let user: UserProp;
-
-        if (res.rows.length > 0) {
+        if (user && user?.email) {
           // Update last login.
-          User.updateLoginTime(res.rows[0]?.mail);
-          user = res.rows[0];
+          User.updateLoginTime(user?.email);
         } else {
-          const insertRes = await pool.query<UserProp>(
-            'INSERT INTO users (google_id, mail, password, name, first_name, last_name, avatar, status) VALUES ($1, $2, $3, $4, $5 , $6, $7, $8) RETURNING *',
-            [googleId, mail, 'dummy_ttn_$$$@!@', name, first_name, last_name, avatar, true],
-          );
-
-          user = insertRes.rows[0];
+          // Create user.
+          user = await User.createUser({
+            google_id: googleId,
+            email: mail,
+            password: 'dummy_ttn_$$$@!@',
+            name: name,
+          });
+          // Create Profile.
+          await Profile.createUserProfile({
+            user_id: user.id,
+            email: user.email,
+            first_name: first_name,
+            last_name: last_name,
+            avatar: avatar,
+            phone: '',
+            bio: '',
+            social_fb: '',
+            social_linkdin: '',
+            social_insta: '',
+          });
         }
 
         done(null, user);

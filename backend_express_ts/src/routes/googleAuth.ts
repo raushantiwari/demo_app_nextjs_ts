@@ -1,9 +1,10 @@
 import { Request, Response, Router } from 'express';
 import passport from 'passport';
-import pool from '../utils/db'; // Adjust the import path as necessary
+import User from '../models/User';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import '../config/passport-setup'; // Ensure passport is configured
+import { UserProp } from '../types/users.type';
 
 dotenv.config();
 const router = Router();
@@ -16,7 +17,7 @@ router.get(
   '/callback',
   passport.authenticate('google', { failureRedirect: '/login/failed' }),
   async (req: Request, res: Response) => {
-    const user = req.user as { id: number; email: string; name: string };
+    const user = req.user as UserProp;
 
     if (!user) {
       return res.status(401).json({ message: 'User not authenticated' });
@@ -29,11 +30,12 @@ router.get(
         { expiresIn: '1h' },
       );
 
-      await pool.query('INSERT INTO sessions (user_id, token, hostname) VALUES ($1, $2, $3)', [
-        user.id,
-        token,
-        req.ip,
-      ]);
+      // Create user session.
+      User.createUserSession({
+        user_id: user.id,
+        token: token,
+        hostname: req.ip,
+      });
 
       // Redirect back to React app with token as query parameter
       res.redirect(`${process.env.FE_BASE_URL}/api/auth/success?token=${token}`);
