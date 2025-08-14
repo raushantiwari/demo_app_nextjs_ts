@@ -4,6 +4,7 @@ import userRouter from './routes/userRoute';
 import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 import { BACKEND_CONFIG } from './utils/constant';
 import { setupSwagger } from './swagger';
@@ -24,6 +25,8 @@ app.set('trust proxy', true);
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '../public')));
 
+// Allow all origins
+app.use(cors());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

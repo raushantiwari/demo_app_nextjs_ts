@@ -139,7 +139,7 @@ class User {
   }
   // Get user by ID
   static async getUserById(id: string) {
-    const query = `SELECT u.email, u.last_login, p.first_name, p.last_name, p.avatar FROM users as u LEFT JOIN profile as p on u.email = p.email WHERE u.email = $1 OR u.google_id = $1 OR u.user_id = $1 AND status = $2;`;
+    const query = `SELECT u.email, u.last_login, p.first_name, p.last_name, p.avatar FROM users as u LEFT JOIN profile as p on u.email = p.email WHERE u.email = $1 OR u.google_id = $1 AND status = $2;`;
     try {
       const result = await pool.query(query, [id, true]);
       return result.rows[0];

@@ -1,23 +1,23 @@
-import { Request, Response, Router } from 'express';
-import User from '../models/User';
+import { Router } from 'express';
+import { getLoginUser } from '../controllers/userController';
+import { verifyJwtMiddleware } from '../middlewares/jwtAuthVerify';
 import dotenv from 'dotenv';
 
 dotenv.config();
 const router = Router();
 
-// Google Login Route
-router.get('/', async (req: Request, res: Response) => {
-  const { email } = req.body;
-  const user = await User.checkUserExists(email);
-  if (user) {
-    res.json({
-      status: 200,
-      message: 'Record fetch successfully.',
-      data: user,
-    });
-  } else {
-    res.json({ status: 404, message: 'No record found.', data: [] });
-  }
-});
+/**
+ * @swagger
+ * /api/v1/user-info:
+ *   get:
+ *     summary: Get logged-in user information
+ *     description: Logged in user information.
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: A successful response
+ */
+router.get('/', verifyJwtMiddleware, getLoginUser);
 
 export default router;
