@@ -1,29 +1,66 @@
+import { UserProp, UserSessionProp } from '../types/users.type';
 import pool from '../utils/db';
+import { formatQueryForDebug } from '../utils/helper';
 
 class User {
   // Create users table (only run once)
   //   static async createTable() {
   //     const query = `
-  // CREATE TABLE IF NOT EXISTS users (
-  //   id SERIAL PRIMARY KEY,
-  //   google_id VARCHAR(255) UNIQUE NOT NULL,
-  //   email VARCHAR(100) UNIQUE NOT NULL,
-  //   password TEXT,
-  //   name VARCHAR(255) NOT NULL,
-  //   first_name VARCHAR(50) NOT NULL,
-  //   last_name VARCHAR(50) NOT NULL,
-  //   avatar TEXT,
-  //   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  //   last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  //   status BOOLEAN DEFAULT TRUE
-  // );
 
-  // CREATE TABLE public.sessions (
-  //   user_id INTEGER,
-  //   token TEXT NOT NULL,
-  //   hostname TEXT NOT NULL,
-  //   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  // );
+  //   CREATE TABLE IF NOT EXISTS users (
+  //     id SERIAL PRIMARY KEY,
+  //     google_id VARCHAR(255) UNIQUE NOT NULL,
+  //     email VARCHAR(100) UNIQUE NOT NULL,
+  //     password TEXT,
+  //     name VARCHAR(255) NOT NULL,
+  //     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  //     last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  //     status BOOLEAN DEFAULT TRUE
+  //   );
+
+  //    CREATE TABLE IF NOT EXISTS sessions (
+  //     user_id VARCHAR(255) NOT NULL,
+  //     token TEXT NOT NULL,
+  //     hostname TEXT NOT NULL,
+  //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  //   );
+
+  //   CREATE TABLE IF NOT EXISTS profile (
+  //     id SERIAL PRIMARY KEY,
+  //     user_id VARCHAR(255) UNIQUE NOT NULL,
+  //     email VARCHAR(100) UNIQUE NOT NULL,
+  //     first_name VARCHAR(50) NOT NULL,
+  //     last_name VARCHAR(50),
+  //     avatar TEXT,
+  //     phone VARCHAR(100),
+  //     bio TEXT,
+  //     social_fb VARCHAR(100),
+  //     social_linkdin VARCHAR(100),
+  //     social_insta VARCHAR(100),
+  //     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  //   );
+
+  //   CREATE TABLE IF NOT EXISTS address (
+  //     user_id VARCHAR(255) UNIQUE NOT NULL,
+  //     email VARCHAR(100) UNIQUE NOT NULL,
+  //     country VARCHAR(50) NOT NULL,
+  //     state VARCHAR(50),
+  //     postal VARCHAR(50),
+  //     city VARCHAR(100)
+  //   );
+
+  //   CREATE TABLE IF NOT EXISTS roles (
+  //     role_id SERIAL PRIMARY KEY,
+  //     role_name VARCHAR(50) NOT NULL
+  //   );
+
+  //  CREATE TABLE IF NOT EXISTS roles_users (
+  //     user_id VARCHAR(255) UNIQUE NOT NULL,
+  //     email VARCHAR(100) UNIQUE NOT NULL,
+  //     role_id VARCHAR(50) NOT NULL,
+  //     status BOOLEAN DEFAULT FALSE
+  //   );
+
   //     `;
   //     try {
   //       await pool.query(query);
@@ -34,31 +71,13 @@ class User {
   //   }
 
   // Insert a new user
-  static async createUser(
-    google_id: string,
-    mail: string,
-    password: string,
-    fullname: string,
-    first_name: string,
-    last_name: string,
-    avatar: string,
-    status: boolean,
-  ) {
+  static async createUser({ google_id, email, password, name }: UserProp) {
     const query = `
-      INSERT INTO users (google_id, mail, password, name, first_name, last_name, avatar, status)
-      VALUES ($1, $2, $3, $4, $5 , $6, $7, $8) RETURNING *;
+      INSERT INTO users (google_id, email, password, name)
+      VALUES ($1, $2, $3, $4) RETURNING *;
     `;
     try {
-      const result = await pool.query(query, [
-        google_id,
-        mail,
-        password,
-        fullname,
-        first_name,
-        last_name,
-        avatar,
-        status,
-      ]);
+      const result = await pool.query(query, [google_id, email, password, name]);
       return result.rows[0];
     } catch (error) {
       console.error('Error inserting user:', error);
@@ -67,7 +86,7 @@ class User {
   }
 
   // Create session
-  static async createUserSession(user_id: number, token: string, hostname: string) {
+  static async createUserSession({ user_id, token, hostname }: UserSessionProp) {
     const query = `
       INSERT INTO sessions (user_id, token, hostname)
       VALUES ($1, $2, $3) RETURNING *;
@@ -80,65 +99,6 @@ class User {
       throw error;
     }
   }
-
-  // Get all users
-  static async getAllUsers() {
-    const query = `SELECT * FROM users;`;
-    console.log('query', query);
-    try {
-      const result = await pool.query(query);
-      return result.rows;
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      throw error;
-    }
-  }
-
-  // Get user by ID
-  static async getUserById(mail: string) {
-    const query = `SELECT * FROM users WHERE mail = $1;`;
-    try {
-      const result = await pool.query(query, [mail]);
-      return result.rows[0];
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      throw error;
-    }
-  }
-
-  // Get user by ID
-  static async checkUserExists(mail: string, username: string) {
-    const query = `SELECT mail FROM users WHERE mail = $1 OR username = $2;`;
-    try {
-      const result = await pool.query(query, [mail, username]);
-      return result.rows[0];
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      throw error;
-    }
-  }
-
-  // Search user by username
-  static async searchAllUsers(username: string | undefined) {
-    let query = '';
-    let params: string[] = [];
-
-    try {
-      if (username) {
-        query = `SELECT * FROM users WHERE username ILIKE $1;`;
-        params = [`%${username}%`];
-      } else {
-        query = `SELECT * FROM users;`;
-      }
-      console.log('Executing Query:', query, 'Params:', params);
-      const result = await pool.query(query, params);
-      return result.rows;
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      throw error;
-    }
-  }
-
   // Update user login time
   static async updateLoginTime(mail: string) {
     const query = `
@@ -152,15 +112,39 @@ class User {
       throw error;
     }
   }
+  // Get user by ID, google_id or email
+  static async checkUserExists(id: string) {
+    const query = `SELECT mail FROM users WHERE email = $1 OR google_id = $1 OR user_id = $1 AND status = $2;`;
 
-  // Delete user by ID
-  static async deleteUser(id: number) {
-    const query = `DELETE FROM users WHERE id = $1;`;
+    // Option 1: Debug (only in dev)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(
+        'debug Option1 @@@@@@@@@@@@@@@@@@@@@@ Executing SQL:\n',
+        formatQueryForDebug(query, [id, true]),
+      );
+    }
+
+    // Option 2:
+    // Show PostgreSQL's execution plan
+    const plan = await pool.query('EXPLAIN ' + query, [id, true]);
+    console.log(plan.rows, 'debug Option2 @@@@@@@@@@@@@@@@@@@@@@@');
+
     try {
-      const result = await pool.query(query, [id]);
+      const result = await pool.query(query, [id, true]);
       return result.rows[0];
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error fetching user:', error);
+      throw error;
+    }
+  }
+  // Get user by ID
+  static async getUserById(id: string) {
+    const query = `SELECT u.email, u.last_login, p.first_name, p.last_name, p.avatar FROM users as u LEFT JOIN profile as p on u.email = p.email WHERE u.email = $1 OR u.google_id = $1 OR u.user_id = $1 AND status = $2;`;
+    try {
+      const result = await pool.query(query, [id, true]);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error fetching user:', error);
       throw error;
     }
   }

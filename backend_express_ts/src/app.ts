@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import googleRouter from './routes/googleAuth';
+import userRouter from './routes/userRoute';
 import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
@@ -43,7 +44,10 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session()); // Incase of JWT-Based Authentication this is not required.
 
-// Routes
+// Public Routes
 app.use(`${apiPrefix}/auth/google`, googleRouter);
+
+//Private routes
+app.use(`${apiPrefix}/user-info`, userRouter);
 
 export default app;
