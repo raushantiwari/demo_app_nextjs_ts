@@ -19,7 +19,6 @@ class User {
   // );
 
   // CREATE TABLE public.sessions (
-  //   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   //   user_id INTEGER,
   //   token TEXT NOT NULL,
   //   hostname TEXT NOT NULL,
@@ -141,12 +140,12 @@ class User {
   }
 
   // Update user login time
-  static async updateLoginTime(id: number) {
+  static async updateLoginTime(mail: string) {
     const query = `
-      UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *;
+      UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE mail = $1 RETURNING *;
     `;
     try {
-      const result = await pool.query(query, [id]);
+      const result = await pool.query(query, [mail]);
       return result.rows[0];
     } catch (error) {
       console.error('Error updating login time:', error);

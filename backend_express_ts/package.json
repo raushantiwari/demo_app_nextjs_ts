@@ -2,7 +2,6 @@
   "name": "backend_express_ts",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
