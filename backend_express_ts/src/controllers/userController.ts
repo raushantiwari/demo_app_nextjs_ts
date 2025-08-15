@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { verifyToken } from '../utils/jwtHelper';
 import User from '../models/User';
+import { ResponseHelper } from '../utils/responseHelper';
 
 /**
  * Get logged in user information based on token only
@@ -14,23 +15,19 @@ export const getLoginUser = async (req: Request, res: Response) => {
     console.log(decoded, 'decodeToken@@@@@@@@@@@@@@@');
 
     if (!decoded.email) {
-      return res.status(400).json({ status: 400, message: 'Your token is invalid.' });
+      return ResponseHelper.badRequest(res, 'Your token is invalid.');
     }
 
     const user = await User.getUserById(decoded.email);
 
-    if (user) {
-      return res.json({
-        status: 200,
-        message: 'Record fetched successfully.',
-        data: user,
-      });
+    if (user && user.length > 0) {
+      return ResponseHelper.success(res, user, 'Record fetched successfully.');
     } else {
-      return res.status(404).json({ status: 404, message: 'No record found.', data: [] });
+      return ResponseHelper.notFound(res, 'No record found.');
     }
   } catch (error) {
     console.error('Error fetching login user:', error);
-    return res.status(401).json({ status: 401, message: 'Invalid or expired token' });
+    return ResponseHelper.unauthorized(res, 'Invalid or expired token');
   }
 };
 
@@ -47,24 +44,46 @@ export const getAllMembers = async (req: Request, res: Response) => {
     // Get status from body header.
     const { status } = req.body ?? {};
     if (!decoded.email) {
-      return res.status(400).json({ status: 400, message: 'Your token is invalid.' });
+      return ResponseHelper.badRequest(res, 'Your token is invalid.');
     }
 
     // Get users.
     const users =
       status === undefined ? await User.getUserListing() : await User.getUserListing(status);
 
-    if (users) {
-      return res.json({
-        status: 200,
-        message: 'Record fetched successfully.',
-        data: users,
-      });
+    if (users && users.length > 0) {
+      return ResponseHelper.success(res, users, 'Record fetched successfully.');
     } else {
-      return res.status(404).json({ status: 404, message: 'No record found.', data: [] });
+      return ResponseHelper.notFound(res, 'No record found.');
     }
   } catch (error) {
     console.error('Error fetching login user:', error);
-    return res.status(401).json({ status: 401, message: 'Invalid or expired token' });
+    return ResponseHelper.unauthorized(res, 'Invalid or expired token');
+  }
+};
+
+/**
+ * Get member profile.
+ * @param req
+ * @param res
+ * @returns
+ */
+export const getProfileInfo = async (req: Request, res: Response) => {
+  try {
+    const decoded = verifyToken(req);
+    if (!decoded.email) {
+      return ResponseHelper.badRequest(res, 'Your token is invalid.');
+    }
+    const id = req.params.id ? parseInt(req.params.id) : 0;
+    // Get users.
+    const users = await User.getMemberProfile(id);
+    if (users && users.length > 0) {
+      return ResponseHelper.success(res, users, 'Record fetched successfully.');
+    } else {
+      return ResponseHelper.notFound(res, 'No record found.');
+    }
+  } catch (error) {
+    console.error('Error fetching login user:', error);
+    return ResponseHelper.unauthorized(res, 'Invalid or expired token');
   }
 };
