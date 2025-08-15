@@ -44,10 +44,16 @@ export const getAllMembers = async (req: Request, res: Response) => {
   try {
     const decoded = verifyToken(req);
 
+    // Get status from body header.
+    const { status } = req.body ?? {};
     if (!decoded.email) {
       return res.status(400).json({ status: 400, message: 'Your token is invalid.' });
     }
-    const users = await User.getUserListing();
+
+    // Get users.
+    const users =
+      status === undefined ? await User.getUserListing() : await User.getUserListing(status);
+
     if (users) {
       return res.json({
         status: 200,
