@@ -1,10 +1,10 @@
 import { Request, Response, Router } from 'express';
 import passport from 'passport';
 import User from '../models/User';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import '../config/passport-setup'; // Ensure passport is configured
 import { UserProp } from '../types/users.type';
+import { createLoginToken } from '../utils/jwtHelper';
 
 dotenv.config();
 const router = Router();
@@ -24,12 +24,13 @@ router.get(
     }
 
     try {
-      const token = jwt.sign(
-        { id: user.id, email: user.email, name: user.name },
-        process.env.JWT_SECRET as string,
-        { expiresIn: '1h' },
-      );
-
+      // Create token
+      const token = createLoginToken({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: 'admin',
+      });
       // Create user session.
       User.createUserSession({
         user_id: user.id,

@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import { getDecodedToken } from '../utils/helper';
+import { verifyToken } from '../utils/jwtHelper';
 import User from '../models/User';
 
 export const getLoginUser = async (req: Request, res: Response) => {
   try {
-    const decoded = getDecodedToken(req);
+    const decoded = verifyToken(req);
 
     if (!decoded.email) {
-      return res.status(400).json({ status: 400, message: 'Email not found in token' });
+      return res.status(400).json({ status: 400, message: 'Your token is invalid.' });
     }
 
     const user = await User.getUserById(decoded.email);

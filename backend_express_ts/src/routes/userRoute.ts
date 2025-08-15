@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getLoginUser } from '../controllers/userController';
-import { verifyJwtMiddleware } from '../middlewares/jwtAuthVerify';
+import { verifyJwtMiddleware } from '../utils/jwtHelper';
 import dotenv from 'dotenv';
 
 dotenv.config();
