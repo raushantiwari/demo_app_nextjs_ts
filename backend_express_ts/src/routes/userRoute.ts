@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { getAllMembers, getLoginUser, getProfileInfo } from '../controllers/userController';
+import {
+  getAllMembers,
+  getLoginUser,
+  getProfileInfo,
+  updateUserAddress,
+} from '../controllers/userController';
 import { verifyJwtMiddleware } from '../utils/jwtHelper';
 import dotenv from 'dotenv';
 
@@ -58,5 +63,45 @@ router.get('/listing', verifyJwtMiddleware, getAllMembers);
  *         description: Internal server error
  */
 router.get('/profile/:id', verifyJwtMiddleware, getProfileInfo);
+
+/**
+ * @swagger
+ * /api/v1/user-info/update-address:
+ *   post:
+ *     summary: User address update.
+ *     description: Add or update user address based on token.
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - country
+ *               - state
+ *               - city
+ *               - postal
+ *             properties:
+ *               country:
+ *                 type: string
+ *                 example: "India"
+ *               state:
+ *                 type: string
+ *                 example: "UP"
+ *               city:
+ *                 type: string
+ *                 example: "Noida"
+ *               postal:
+ *                 type: string
+ *                 example: "203207"
+ *     responses:
+ *       200:
+ *         description: Address created successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post('/update-address', verifyJwtMiddleware, updateUserAddress);
 
 export default router;

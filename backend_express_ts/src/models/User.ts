@@ -1,4 +1,4 @@
-import { UserProp, UserSessionProp } from '../types/users.type';
+import { UserAddressProp, UserProp, UserSessionProp } from '../types/users.type';
 import pool from '../utils/db';
 import { formatQueryForDebug } from '../utils/helper';
 
@@ -169,12 +169,49 @@ class User {
 
   // Get member detail based on id.
   static async getMemberProfile(id: number, status: boolean = true) {
-    let query = `SELECT u.email, u.last_login, p.first_name, p.last_name, p.avatar, p.phone, p.bio, p.social_fb, p.social_linkdin, p.social_insta, ad1.country, ad1.state, ad1.postal, ad1.city  FROM users as u LEFT JOIN profile as p on u.email = p.email LEFT JOIN address as ad1 ON ad1.email = u.email WHERE u.id = $1  AND u.status = $2`;
+    const query = `SELECT u.email, u.last_login, p.first_name, p.last_name, p.avatar, p.phone, p.bio, p.social_fb, p.social_linkdin, p.social_insta, ad1.country, ad1.state, ad1.postal, ad1.city  FROM users as u LEFT JOIN profile as p on u.email = p.email LEFT JOIN address as ad1 ON ad1.email = u.email WHERE u.id = $1  AND u.status = $2`;
     try {
       const result = await pool.query(query, [id, status]);
       return result.rows;
     } catch (error) {
       console.error('Error fetching user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update address based on email address.
+   * @param address
+   * @returns
+   */
+  static async upsertUserAddress(address: UserAddressProp) {
+    try {
+      const { email, user_id, country, state, postal, city } = address;
+
+      if (!email) {
+        throw new Error('Email is required.');
+      }
+
+      // UPSERT query
+      const query = `
+      INSERT INTO address (user_id, email, country, state, postal, city)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (email)
+      DO UPDATE SET
+        user_id = EXCLUDED.user_id,
+        country = EXCLUDED.country,
+        state = EXCLUDED.state,
+        postal = EXCLUDED.postal,
+        city = EXCLUDED.city
+      RETURNING *;
+    `;
+
+      const values = [user_id, email, country, state, postal, city];
+
+      const result = await pool.query(query, values);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error upserting user address:', error);
       throw error;
     }
   }

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { verifyToken } from '../utils/jwtHelper';
 import User from '../models/User';
 import { ResponseHelper } from '../utils/responseHelper';
+import { UserAddressProp } from '../types/users.type';
 
 /**
  * Get logged in user information based on token only
@@ -78,6 +79,35 @@ export const getProfileInfo = async (req: Request, res: Response) => {
     // Get users.
     const users = await User.getMemberProfile(id);
     if (users && users.length > 0) {
+      return ResponseHelper.success(res, users, 'Record fetched successfully.');
+    } else {
+      return ResponseHelper.notFound(res, 'No record found.');
+    }
+  } catch (error) {
+    console.error('Error fetching login user:', error);
+    return ResponseHelper.unauthorized(res, 'Invalid or expired token');
+  }
+};
+
+/**
+ * Get member profile.
+ * @param req
+ * @param res
+ * @returns
+ */
+export const updateUserAddress = async (req: Request, res: Response) => {
+  try {
+    const decoded = verifyToken(req);
+    if (!decoded.email) {
+      return ResponseHelper.badRequest(res, 'Your token is invalid.');
+    }
+    // Get status from body header.
+    const bodyAdd: UserAddressProp = req.body ?? {};
+    bodyAdd.email = decoded?.email;
+    bodyAdd.user_id = String(decoded?.id);
+    // Get users.
+    const users = await User.upsertUserAddress(bodyAdd);
+    if (users && Object.keys(users).length > 0) {
       return ResponseHelper.success(res, users, 'Record fetched successfully.');
     } else {
       return ResponseHelper.notFound(res, 'No record found.');
