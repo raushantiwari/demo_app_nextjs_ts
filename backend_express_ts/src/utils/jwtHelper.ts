@@ -2,6 +2,7 @@
 import jwt, { JwtPayload, SignOptions, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+import { ResponseHelper } from './responseHelper';
 dotenv.config();
 
 export interface JwtPayloadCustom extends JwtPayload {
@@ -63,11 +64,11 @@ export function verifyJwtMiddleware(req: Request, res: Response, next: NextFunct
     next();
   } catch (err) {
     if (err instanceof TokenExpiredError) {
-      res.status(401).json({ status: 401, message: 'Token expired' });
+      ResponseHelper.unauthorized(res, (err as Error).message ?? 'Token expired');
     } else if (err instanceof JsonWebTokenError) {
-      res.status(401).json({ status: 401, message: 'Invalid token' });
+      ResponseHelper.unauthorized(res, (err as Error).message ?? 'Invalid token');
     } else {
-      res.status(401).json({ status: 401, message: (err as Error).message ?? 'Unauthorized' });
+      ResponseHelper.unauthorized(res, (err as Error).message ?? 'Unauthorized');
     }
   }
 }
