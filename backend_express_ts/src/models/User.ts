@@ -148,6 +148,24 @@ class User {
       throw error;
     }
   }
+
+  // Get user listing.
+  static async getUserListing(status?: boolean) {
+    let query = `SELECT u.email, u.last_login, u.created, u.status, p.first_name, p.last_name, p.avatar FROM users as u LEFT JOIN profile as p on u.email = p.email`;
+    const values: unknown[] = [];
+    // Apply status filter only if status is explicitly true or false
+    if (typeof status === 'boolean') {
+      query += ` WHERE u.status = $1`;
+      values.push(status);
+    }
+    try {
+      const result = await pool.query(query, values);
+      return result.rows;
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      throw error;
+    }
+  }
 }
 
 export default User;

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getLoginUser } from '../controllers/userController';
+import { getAllMembers, getLoginUser } from '../controllers/userController';
 import { verifyJwtMiddleware } from '../utils/jwtHelper';
 import dotenv from 'dotenv';
 
@@ -19,5 +19,19 @@ const router = Router();
  *         description: A successful response
  */
 router.get('/', verifyJwtMiddleware, getLoginUser);
+
+/**
+ * @swagger
+ * /api/v1/user-info/listing:
+ *   get:
+ *     summary: show all users
+ *     description: All available user in system.
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: A successful response
+ */
+router.get('/listing', verifyJwtMiddleware, getAllMembers);
 
 export default router;
