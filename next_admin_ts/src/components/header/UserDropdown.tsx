@@ -17,12 +17,11 @@ export default function UserDropdown() {
     setIsOpen(false);
   }
   const logoutHandler = async () => {
-    console.log('logged out');
     // remove token cookies.
-    await removeAuthCookie('ttn_token');
-    window.location.href = '/signin'; // redirect after logout
+    const signout = await removeAuthCookie('ttn_token');
+    window.location.href = signout ? `/signin` : `/`; // redirect after logout
   };
-  
+
   return (
     <div className="relative">
       <button
