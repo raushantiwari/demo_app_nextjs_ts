@@ -6,8 +6,25 @@ import User from '../models/User';
 import { BasicUserProp } from '../types/users.type';
 import { isValidEmail } from '../utils/helper';
 import Profile from '../models/Profile';
+import bcrypt from 'bcrypt';
+
+const SALT_ROUNDS = 10; // higher = stronger but slower
 
 dotenv.config();
+
+/**
+ * Hash password before saving to DB
+ */
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, SALT_ROUNDS);
+}
+
+/**
+ * Compare raw password with hashed password
+ */
+export async function comparePassword(password: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword);
+}
 
 /**
  * Logout function
@@ -70,8 +87,7 @@ export const basicUserCreate = async (req: Request, res: Response) => {
     const userParams = {
       google_id: `dummy_basic_auth_${Date.now()}`,
       email: email,
-      password: password,
-      confirm_password: confirm_password,
+      password: password ? await hashPassword(password) : '',
       name: `${first_name} ${last_name}`,
     };
     const userInfo = await User.createUser(userParams);
@@ -88,6 +104,12 @@ export const basicUserCreate = async (req: Request, res: Response) => {
       social_linkdin: '',
       social_insta: '',
     });
+
+    // Delete variable from object for security reasons.
+    delete userInfo.password;
+    delete userInfo.google_id;
+
+    return ResponseHelper.success(res, userInfo, 'User Registered successfully.');
   } catch (error) {
     console.error('Error fetching login user:', error);
     return ResponseHelper.unauthorized(res, 'error occoured to basicUserCreate.');
