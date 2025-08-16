@@ -60,6 +60,54 @@ class Profile {
       throw error;
     }
   }
+
+  /**
+   * Update user profile information
+   * @param address
+   * @returns
+   */
+  static async upsertUserProfile(profile: UserProfileProp) {
+    const query = `
+      INSERT INTO profile (
+        user_id, email, first_name, last_name, phone, bio, 
+        social_fb, social_linkdin, social_insta
+      )
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9
+      )
+      ON CONFLICT (email)
+      DO UPDATE SET
+        user_id = EXCLUDED.user_id,
+        first_name = EXCLUDED.first_name,
+        last_name = EXCLUDED.last_name,
+        phone = EXCLUDED.phone,
+        bio = EXCLUDED.bio,
+        social_fb = EXCLUDED.social_fb,
+        social_linkdin = EXCLUDED.social_linkdin,
+        social_insta = EXCLUDED.social_insta
+      RETURNING *;
+    `;
+
+    const values = [
+      profile.user_id,
+      profile.email,
+      profile.first_name,
+      profile.last_name,
+      profile.phone,
+      profile.bio,
+      profile.social_fb,
+      profile.social_linkdin,
+      profile.social_insta,
+    ];
+
+    try {
+      const result = await pool.query(query, values);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error upserting user profile:', error);
+      throw error;
+    }
+  }
 }
 
 export default Profile;

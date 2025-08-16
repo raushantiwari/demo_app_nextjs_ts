@@ -4,6 +4,7 @@ import {
   getLoginUser,
   getProfileInfo,
   updateUserAddress,
+  updateUserProfile,
 } from '../controllers/userController';
 import { verifyJwtMiddleware } from '../utils/jwtHelper';
 import dotenv from 'dotenv';
@@ -103,5 +104,58 @@ router.get('/profile/:id', verifyJwtMiddleware, getProfileInfo);
  *         description: Bad request
  */
 router.post('/update-address', verifyJwtMiddleware, updateUserAddress);
+
+/**
+ * @swagger
+ * /api/v1/user-info/profile/update:
+ *   post:
+ *     summary: User profile update.
+ *     description: Add or update user profile based on token.
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - first_name
+ *               - last_name
+ *               - phone
+ *               - bio
+ *               - social_fb
+ *               - social_linkdin
+ *               - social_insta
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *                 example: "jone"
+ *               last_name:
+ *                 type: string
+ *                 example: "adams"
+ *               phone:
+ *                 type: string
+ *                 example: "9990016334"
+ *               bio:
+ *                 type: string
+ *                 example: "Fullstack developer"
+ *               social_fb:
+ *                 type: string
+ *                 example: "https://fb.com/raushan"
+ *               social_linkdin:
+ *                 type: string
+ *                 example: "https://linkdin.com/raushan"
+ *               social_insta:
+ *                 type: string
+ *                 example: "https://insta.com/raushan"
+ *     responses:
+ *       200:
+ *         description: Profile created successfully
+ *       400:
+ *         description: Bad request
+ */
+
+router.post('/profile/update', verifyJwtMiddleware, updateUserProfile);
 
 export default router;
