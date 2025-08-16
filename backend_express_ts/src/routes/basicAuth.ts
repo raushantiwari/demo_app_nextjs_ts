@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import dotenv from 'dotenv';
-import { basicUserCreate } from '../controllers/authController';
+import { basicUserCreate, basicUserLogin } from '../controllers/authController';
 dotenv.config();
 
 const router = Router();
@@ -13,7 +13,8 @@ const router = Router();
  *     summary: Basic auth setup to create user.
  *     description: Setup basic auth to create user.
  *     tags:
- *       - Users
+ *       - Basic Auth
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -44,11 +45,45 @@ const router = Router();
  *                 example: "ttn@!@#$"
  *     responses:
  *       200:
- *         description: Setup basic auth to user.
+ *         description: Setup basic auth to user create.
  *       400:
  *         description: Bad request
  */
 
 router.post('/register', basicUserCreate);
+
+/**
+ * @swagger
+ * /api/v1/auth/basic/login:
+ *   post:
+ *     summary: Basic auth setup to user login.
+ *     description: Setup basic auth to user login.
+ *     tags:
+ *       - Basic Auth
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "jhon@edu.com"
+ *               password:
+ *                 type: string
+ *                 example: ""
+ *     responses:
+ *       200:
+ *         description: Setup basic auth to user login.
+ *       400:
+ *         description: Bad request
+ */
+
+router.post('/login', basicUserLogin);
 
 export default router;

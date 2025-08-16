@@ -7,6 +7,7 @@ import { BasicUserProp } from '../types/users.type';
 import { isValidEmail } from '../utils/helper';
 import Profile from '../models/Profile';
 import bcrypt from 'bcrypt';
+import { createLoginToken } from '../utils/jwtHelper';
 
 const SALT_ROUNDS = 10; // higher = stronger but slower
 
@@ -113,5 +114,66 @@ export const basicUserCreate = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching login user:', error);
     return ResponseHelper.unauthorized(res, 'error occoured to basicUserCreate.');
+  }
+};
+
+/**
+ * Login user to help of basic auth setup.
+ * @param req
+ * @param res
+ * @returns
+ */
+export const basicUserLogin = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return ResponseHelper.unauthorized(
+      res,
+      'You are already logged-in, logout first to access this !',
+    );
+  }
+  try {
+    const { email, password }: BasicUserProp = req.body ?? {};
+    // check valid email.
+    if (email) {
+      if (!isValidEmail(email)) {
+        return ResponseHelper.badRequest(res, 'Invalid email adress');
+      }
+    } else {
+      return ResponseHelper.badRequest(res, 'email adress is required');
+    }
+
+    // check passord match or not.
+    if (!password) {
+      return ResponseHelper.badRequest(res, 'password is required.');
+    }
+    // check user details.
+    const userExist = await User.checkUserExists(email);
+    if (userExist && Object.keys(userExist).length === 0) {
+      return ResponseHelper.unauthorized(res, 'username or password did not match in our record.');
+    }
+    // check password match.
+    const isMatched = await comparePassword(password, userExist?.password);
+    if (!isMatched) {
+      return ResponseHelper.notFound(res, 'username or password did not match in our record.');
+    }
+
+    // Create login token.
+    const token = createLoginToken({
+      id: userExist.id,
+      email: userExist.email,
+      name: userExist.name,
+      role: 'admin',
+    });
+    // Create user session.
+    User.createUserSession({
+      user_id: userExist.id,
+      token: token,
+      hostname: req.ip,
+    });
+    return ResponseHelper.success(res, token, 'You have been successfully logged in.');
+  } catch (error) {
+    console.error('Error fetching login user:', error);
+    return ResponseHelper.unauthorized(res, 'error occoured to basicUserLogin.');
   }
 };
