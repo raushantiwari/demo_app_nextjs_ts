@@ -9,6 +9,14 @@ export type UserProp = {
   status?: boolean;
 };
 
+export type BasicUserProp = {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  password?: string;
+  confirm_password?: string;
+};
+
 export type UserSessionProp = {
   user_id?: number;
   token?: string;

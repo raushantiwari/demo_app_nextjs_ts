@@ -114,13 +114,13 @@ class User {
   }
   // Get user by ID, google_id or email
   static async checkUserExists(id: string) {
-    const query = `SELECT id, email, google_id FROM users WHERE email = $1 OR google_id = $1 AND status = $2;`;
+    const query = `SELECT id, email, google_id FROM users WHERE email = $1 OR google_id = $1;`;
 
     // Option 1: Debug (only in dev)
     if (process.env.NODE_ENV !== 'production') {
       console.log(
         'debug Option1 @@@@@@@@@@@@@@@@@@@@@@ Executing SQL:\n',
-        formatQueryForDebug(query, [id, true]),
+        formatQueryForDebug(query, [id]),
       );
     }
 
@@ -130,7 +130,7 @@ class User {
     // console.log(plan.rows, 'debug Option2 @@@@@@@@@@@@@@@@@@@@@@@');
 
     try {
-      const result = await pool.query(query, [id, true]);
+      const result = await pool.query(query, [id]);
       return result.rows[0];
     } catch (error) {
       console.error('Error fetching user:', error);
