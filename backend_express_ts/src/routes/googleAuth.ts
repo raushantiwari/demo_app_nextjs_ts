@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import '../config/passport-setup'; // Ensure passport is configured
 import { UserProp } from '../types/users.type';
 import { createLoginToken } from '../utils/jwtHelper';
+import { userLogoutDb } from '../controllers/authController';
 
 dotenv.config();
 const router = Router();
@@ -48,18 +49,28 @@ router.get(
 );
 
 // Logout route
-router.get('/logout', (req: Request, res: Response) => {
+router.post('/logout', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new Error('Unauthorized: No token provided or invalid format');
+  }
+
+  const token = authHeader.split(' ')[1];
+  // Remove session information from db.
+  if (token) userLogoutDb(req, res, token);
+
   req.logout((err) => {
     if (err) {
       return res.status(500).send('Error logging out');
     }
-    res.redirect('/');
+    res.redirect(`${process.env.FE_BASE_URL}`);
   });
 });
 
 // Login failed route
 router.get('/login/failed', (req: Request, res: Response) => {
-  res.status(401).json({ message: 'Login failed' });
+  res.redirect(`${process.env.FE_BASE_URL}/signin?message="Logged in fail, please try again!"`);
 });
 
 export default router;

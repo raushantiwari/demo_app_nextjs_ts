@@ -215,6 +215,21 @@ class User {
       throw error;
     }
   }
+
+  /**
+   * Delete user session
+   * @param token
+   */
+  static async deleteSessionToken(token: string) {
+    const query = `DELETE FROM sessions WHERE token = $1;`;
+    try {
+      const result = await pool.query(query, [token]);
+      return (result.rowCount ?? 0) > 0; // true if deleted, false otherwise
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      throw error;
+    }
+  }
 }
 
 export default User;
