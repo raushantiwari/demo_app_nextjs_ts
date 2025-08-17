@@ -22,7 +22,7 @@ export const getLoginUser = async (req: Request, res: Response) => {
 
     const user = await User.getUserById(decoded.email);
 
-    if (user && user.length > 0) {
+    if (user && Object.keys(user).length > 0) {
       return ResponseHelper.success(res, user, 'Record fetched successfully.');
     } else {
       return ResponseHelper.notFound(res, 'No record found.');

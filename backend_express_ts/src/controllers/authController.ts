@@ -109,6 +109,21 @@ export const basicUserCreate = async (req: Request, res: Response) => {
     // Delete variable from object for security reasons.
     delete userInfo.password;
     delete userInfo.google_id;
+    // Create login token after registration.
+    const token = createLoginToken({
+      id: userInfo.id,
+      email: userInfo.email,
+      name: userInfo.name,
+      role: 'admin',
+    });
+    // Create user session.
+    User.createUserSession({
+      user_id: userInfo.id,
+      token: token,
+      hostname: req.ip,
+    });
+
+    userInfo.token = token;
 
     return ResponseHelper.success(res, userInfo, 'User Registered successfully.');
   } catch (error) {
