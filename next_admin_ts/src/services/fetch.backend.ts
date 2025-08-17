@@ -42,7 +42,7 @@ export async function ttnFetch(
 
   const urlInfo = `${BASE_URL}${url}`;
 
-  console.log(urlInfo, 'requestOptions');
+  console.log(urlInfo, requestOptions);
   const response = await fetch(urlInfo, requestOptions);
   // Apply response interceptor if provided
 

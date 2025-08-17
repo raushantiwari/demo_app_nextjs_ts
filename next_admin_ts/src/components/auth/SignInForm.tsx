@@ -7,8 +7,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '@/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { loginAuthAction } from '@/actions/authActions';
+import { redirect } from 'next/navigation';
+import Alert from '../ui/alert/Alert';
 
-type FormValues = {
+export type LoginFormValues = {
   email: string;
   password: string;
   agree: boolean;
@@ -20,10 +23,26 @@ export default function SignInForm() {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<FormValues>();
+    setError, // ✅ from useForm
+  } = useForm<LoginFormValues>();
 
-  const onSubmit = (data: FormValues) => {
-    console.log('Form submitted:', data);
+  /**
+   *
+   * @param data
+   */
+  const onSubmit = async (data: LoginFormValues) => {
+    // call server action to manage login.
+    const res = await loginAuthAction(data);
+    if (res && Object.keys(res).length > 0) {
+      redirect('/members');
+    } else {
+      // want to set login error on form
+      setError('root', {
+        type: 'manual',
+        message: 'Invalid email or password.',
+      });
+    }
+    console.log(res);
   };
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
@@ -104,6 +123,13 @@ export default function SignInForm() {
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-6">
+                {errors.root && (
+                  <Alert
+                    title="Login failed."
+                    variant="error"
+                    message={errors?.root?.message ?? ''}
+                  />
+                )}
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{' '}
@@ -111,7 +137,7 @@ export default function SignInForm() {
                   <Controller
                     name="email"
                     control={control}
-                    rules={{ required: 'Email is required' }}
+                    rules={{ required: 'Email is required.' }}
                     render={({ field }) => (
                       <Input
                         {...field} // gives value + onChange
@@ -131,7 +157,7 @@ export default function SignInForm() {
                     <Controller
                       name="password"
                       control={control}
-                      rules={{ required: 'password is required' }}
+                      rules={{ required: 'password is required.' }}
                       render={({ field }) => (
                         <Input
                           {...field}
