@@ -10,3 +10,14 @@ export type BasicUserProp = {
   message: string;
   data: BasicUserType;
 };
+
+type AddtionalProp = {
+  created?: string;
+  status?: boolean;
+};
+
+export type MemberListingProp = {
+  status: number;
+  message: string;
+  data: (BasicUserType & AddtionalProp)[];
+};
