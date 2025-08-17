@@ -1,14 +1,41 @@
-"use client";
-import Checkbox from "@/components/form/input/Checkbox";
-import Input from "@/components/form/input/InputField";
-import Label from "@/components/form/Label";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
-import Link from "next/link";
-import React, { useState } from "react";
+'use client';
+import Checkbox from '@/components/form/input/Checkbox';
+import Input from '@/components/form/input/InputField';
+import Label from '@/components/form/Label';
+import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '@/icons';
+import { RegisterFormValues } from '@/types/auth.type';
+import Link from 'next/link';
+import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import Alert from '../ui/alert/Alert';
+import { registerAuthAction } from '@/actions/authActions';
+import { redirect } from 'next/navigation';
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    setError, // ✅ from useForm
+  } = useForm<RegisterFormValues>();
+  /**
+   *
+   * @param data
+   */
+  const onSubmit = async (data: RegisterFormValues) => {
+    // call server action to manage login.
+    const res = await registerAuthAction(data);
+    if (res && res.status === 200) {
+      redirect('/members');
+    } else {
+      // want to set login error on form
+      setError('root', {
+        type: 'manual',
+        message: res.message,
+      });
+    }
+  };
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full overflow-y-auto no-scrollbar">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -83,19 +110,34 @@ export default function SignUpForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-5">
+                {errors.root && (
+                  <Alert
+                    title="Registation failed."
+                    variant="error"
+                    message={errors?.root?.message ?? ''}
+                  />
+                )}
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
                   <div className="sm:col-span-1">
                     <Label>
                       First Name<span className="text-error-500">*</span>
                     </Label>
-                    <Input
-                      type="text"
-                      id="fname"
-                      name="fname"
-                      placeholder="Enter your first name"
+                    <Controller
+                      name="first_name"
+                      control={control}
+                      rules={{ required: 'First name is required.' }}
+                      render={({ field }) => (
+                        <Input
+                          {...field} // gives value + onChange
+                          type="text"
+                          placeholder="Enter your first name"
+                          error={!!errors.first_name}
+                          hint={errors.first_name?.message}
+                        />
+                      )}
                     />
                   </div>
                   {/* <!-- Last Name --> */}
@@ -103,11 +145,19 @@ export default function SignUpForm() {
                     <Label>
                       Last Name<span className="text-error-500">*</span>
                     </Label>
-                    <Input
-                      type="text"
-                      id="lname"
-                      name="lname"
-                      placeholder="Enter your last name"
+                    <Controller
+                      name="last_name"
+                      control={control}
+                      rules={{ required: 'Last name is required.' }}
+                      render={({ field }) => (
+                        <Input
+                          {...field} // gives value + onChange
+                          type="text"
+                          placeholder="Enter your last name"
+                          error={!!errors.last_name}
+                          hint={errors.last_name?.message}
+                        />
+                      )}
                     />
                   </div>
                 </div>
@@ -116,11 +166,19 @@ export default function SignUpForm() {
                   <Label>
                     Email<span className="text-error-500">*</span>
                   </Label>
-                  <Input
-                    type="email"
-                    id="email"
+                  <Controller
                     name="email"
-                    placeholder="Enter your email"
+                    control={control}
+                    rules={{ required: 'Email is required.' }}
+                    render={({ field }) => (
+                      <Input
+                        {...field} // gives value + onChange
+                        type="email"
+                        placeholder="info@gmail.com"
+                        error={!!errors.email}
+                        hint={errors.email?.message}
+                      />
+                    )}
                   />
                 </div>
                 {/* <!-- Password --> */}
@@ -129,9 +187,19 @@ export default function SignUpForm() {
                     Password<span className="text-error-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Input
-                      placeholder="Enter your password"
-                      type={showPassword ? "text" : "password"}
+                    <Controller
+                      name="password"
+                      control={control}
+                      rules={{ required: 'password is required.' }}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Enter your password"
+                          error={!!errors.password}
+                          hint={errors.password?.message}
+                        />
+                      )}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -145,23 +213,53 @@ export default function SignUpForm() {
                     </span>
                   </div>
                 </div>
+                {/* <!-- Confirm Password --> */}
+                <div>
+                  <Label>
+                    Confirm password<span className="text-error-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Controller
+                      name="confirm_password"
+                      control={control}
+                      rules={{ required: 'Confirm password is required.' }}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type={'password'}
+                          placeholder="Enter your confirm password"
+                          error={!!errors.confirm_password}
+                          hint={errors.confirm_password?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
                 {/* <!-- Checkbox --> */}
                 <div className="flex items-center gap-3">
-                  <Checkbox
-                    className="w-5 h-5"
-                    checked={isChecked}
-                    onChange={setIsChecked}
+                  <Controller
+                    name="term_condition"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        label={
+                          <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
+                            By creating an account means you agree to the{' '}
+                            <span className="text-gray-800 dark:text-white/90">
+                              Terms and Conditions,
+                            </span>{' '}
+                            and our{' '}
+                            <span className="text-gray-800 dark:text-white">
+                              Privacy Policy
+                            </span>
+                          </p>
+                        }
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400"
+                      />
+                    )}
                   />
-                  <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                    By creating an account means you agree to the{" "}
-                    <span className="text-gray-800 dark:text-white/90">
-                      Terms and Conditions,
-                    </span>{" "}
-                    and our{" "}
-                    <span className="text-gray-800 dark:text-white">
-                      Privacy Policy
-                    </span>
-                  </p>
                 </div>
                 {/* <!-- Button --> */}
                 <div>
