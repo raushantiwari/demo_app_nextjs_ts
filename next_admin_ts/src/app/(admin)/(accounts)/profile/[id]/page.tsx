@@ -1,9 +1,6 @@
 import UserAddressCard from '@/components/user-profile/UserAddressCard';
 import UserInfoCard from '@/components/user-profile/UserInfoCard';
 import UserMetaCard from '@/components/user-profile/UserMetaCard';
-import { userProfileInfoService } from '@/services/memberService';
-import { getServerCookie } from '@/utils/cookies.helper';
-import { verifyToken } from '@/utils/server.helper';
 import { Metadata } from 'next';
 import React from 'react';
 
@@ -13,11 +10,13 @@ export const metadata: Metadata = {
     'This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template',
 };
 
-export default async function ProfilePage() {
-  const token = await getServerCookie('ttn_token');
-  const tokenInfo = token && (await verifyToken(token));
-  const userInfo = tokenInfo && (await userProfileInfoService(tokenInfo?.id));
-  console.log(userInfo, 'userInfo@@@@@@@@@@@@@@@@@@@@@@@');
+type paramsProps = {
+  params: { id: string };
+};
+
+export default async function ProfileSpecificPage({ params }: paramsProps) {
+  const { id } = await params;
+  console.log(id, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222');
   return (
     <div>
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">

@@ -10,7 +10,7 @@ import {
 import Badge from '../ui/badge/Badge';
 import Image from 'next/image';
 import { MemberListingProp } from '@/types/member.type';
-import { formatDate } from '@/utils/helper';
+import { formatDate } from '@/utils/client.helper';
 
 type MemberListingType = {
   backInfo?: MemberListingProp;

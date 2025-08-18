@@ -28,7 +28,7 @@ export async function loginAuthService({
     });
     if (!response.ok) {
       console.error(
-        `getDatasheetDetails ${BACKEND_CONFIG.LOGIN_API} Status-Code: ${response.status}: Network response was not ok`,
+        `loginAuthService ${BACKEND_CONFIG.LOGIN_API} Status-Code: ${response.status}: Network response was not ok`,
       );
     }
     if (response && response.status === 200) {
@@ -57,7 +57,7 @@ export async function registerAuthService(
     });
     if (!response.ok) {
       console.error(
-        `getDatasheetDetails ${BACKEND_CONFIG.REGISTER_API} Status-Code: ${response.status}: Network response was not ok`,
+        `registerAuthService ${BACKEND_CONFIG.REGISTER_API} Status-Code: ${response.status}: Network response was not ok`,
       );
     }
     const data = await response.json();

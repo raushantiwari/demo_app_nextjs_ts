@@ -8,6 +8,7 @@ export const BACKEND_CONFIG = {
   REGISTER_API: `${apiPrefix}/auth/basic/register`,
   BASIC_USER_INFO: `${apiPrefix}/user-info`,
   USER_LISTING_INFO: `${apiPrefix}/user-info/listing`,
+  USER_PROFILE_INFO: `${apiPrefix}/user-info/profile`,
 } as const;
 
 export type BconfigType = typeof BACKEND_CONFIG;
