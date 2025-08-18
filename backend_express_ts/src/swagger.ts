@@ -7,9 +7,9 @@ const swaggerOptions: swaggerJsDoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'BootCamp API',
+      title: 'Login Stack API',
       version: '1.0.0',
-      description: 'API documentation for our BootCamp test application',
+      description: 'API documentation for our login stack test application',
     },
     servers: [
       {

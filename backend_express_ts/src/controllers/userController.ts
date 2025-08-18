@@ -79,7 +79,7 @@ export const getProfileInfo = async (req: Request, res: Response) => {
     const id = req.params.id ? parseInt(req.params.id) : 0;
     // Get users.
     const users = await User.getMemberProfile(id);
-    if (users && users.length > 0) {
+    if (users && Object.keys(users).length > 0) {
       return ResponseHelper.success(res, users, 'Record fetched successfully.');
     } else {
       return ResponseHelper.notFound(res, 'No record found.');
