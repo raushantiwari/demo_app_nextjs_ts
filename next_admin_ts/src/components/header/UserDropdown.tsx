@@ -47,7 +47,16 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dark:text-gray-400 dropdown-toggle"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11 border border-gray-400">
-          <Image width={44} height={44} src={userInfo?.avatar ?? '/images/no-user.webp'} alt="User" />
+          <Image
+            width={44}
+            height={44}
+            src={
+              userInfo?.avatar && userInfo?.avatar?.trim() !== ''
+                ? userInfo?.avatar
+                : '/images/no-user.webp'
+            }
+            alt="User"
+          />
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">

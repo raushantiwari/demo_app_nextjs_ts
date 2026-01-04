@@ -42,7 +42,9 @@ const othersItems: NavItem[] = [
   {
     icon: <PlugInIcon />,
     name: 'Authentication',
-    subItems: [{ name: 'Generate Secret key', path: '/generate-skey', pro: false }],
+    subItems: [
+      { name: 'Generate Secret key', path: '/generate-skey', pro: false },
+    ],
   },
 ];
 
@@ -262,22 +264,23 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
+            <div className="flex items-center gap-3">
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/demo-app.webp"
                 alt="Logo"
-                width={150}
+                width={50}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/demo-app.webp"
                 alt="Logo"
-                width={150}
+                width={50}
                 height={40}
               />
-            </>
+              <span className='dark:text-white'> Demo application</span>
+            </div>
           ) : (
             <Image
               src="/images/logo/logo-icon.svg"

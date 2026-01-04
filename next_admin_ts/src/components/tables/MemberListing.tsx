@@ -71,7 +71,9 @@ export default function MemberListing({ backInfo }: MemberListingType) {
                             width={40}
                             height={40}
                             src={
-                              data.avatar ? data.avatar : '/images/no-user.webp'
+                              data?.avatar && data?.avatar?.trim() !== ''
+                                ? data?.avatar
+                                : '/images/no-user.webp'
                             }
                             alt={data.first_name ?? ''}
                           />

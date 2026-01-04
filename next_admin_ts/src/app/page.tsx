@@ -11,10 +11,10 @@ export default async function Home() {
       <div className="w-[35rem] rounded-2xl bg-white shadow-2xl p-10 flex flex-col items-center">
         <div className="mb-7 flex flex-col items-center">
           <Image
-            src="/images/tothenewlogo.b6e98c0ca5779cf99361.png"
+            src="/images/demo-app-logo.webp"
             alt="To The New Logo"
             height={70}
-            width={70}
+            width={150}
             className="mb-4"
           />
           <h1 className="text-2xl font-semibold text-gray-800 mb-2">

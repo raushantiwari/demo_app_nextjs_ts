@@ -5,10 +5,10 @@ export default function SidebarWidget() {
   return (
     <div className="flex mt-4 items-center">
       <Image
-        src="/images/favicon.ico"
+        src="/images/demo-app.webp"
         alt="Newers World"
-        height={20}
-        width={20}
+        height={50}
+        width={50}
       />
       <span className="footer-text ms-1">TO THE NEW © 2025</span>
     </div>
