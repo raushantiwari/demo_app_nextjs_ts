@@ -10,13 +10,14 @@ export const metadata: Metadata = {
     'This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template',
 };
 
-type paramsProps = {
-  params: { id: string };
+type PageProps = {
+  params: Promise<{ id: string }>;
 };
 
-export default async function ProfileSpecificPage({ params }: paramsProps) {
+export default async function ProfileSpecificPage({ params }: PageProps) {
   const { id } = await params;
   console.log(id, '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222');
+  console.log(id, 'PROFILE ID');
   return (
     <div>
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
