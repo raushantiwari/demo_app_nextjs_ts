@@ -15,7 +15,7 @@
     "flatpickr": "^4.6.13",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
-    "next": "15.2.3",
+    "next": "15.2.8",
     "react": "^19.0.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
